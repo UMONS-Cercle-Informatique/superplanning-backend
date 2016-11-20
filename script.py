@@ -15,24 +15,32 @@ try:
     # We wait to be sure that the entire page is loaded.
     # Without that, Selenium does not find the IDs.
     try:
+        # The drop down menu with the list of sections
         dropDown = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[1].bouton")))
 
-        # Once the drop down menu is found, we click on it.
-        dropDown.click()
+        for i in range(0, 245):
+            # Once the drop down menu is found, we click on it.
+            dropDown.click()
 
-        # We must wait that the page loads the sections
-        section = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[1]_19")))
+            # We must wait that the page loads the sections
+            section = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[1]_" + str(i))))
 
-        # We open the planning
-        section.click()
+            # The name of the section
+            name = section.text
 
-        # The iCal pop-up
-        iCalButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="id_33"]/table/tbody/tr/td[6]/div')))
+            # We open the planning
+            section.click()
 
-        iCalButton.click()
+            # The iCal pop-up
+            iCalButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="id_33"]/table/tbody/tr/td[6]/div')))
 
-        link = driver.find_element_by_id("GInterface.Instances[1].Instances[10]_lien_permanent")
-        f.write(link.get_attribute("value") + '\n')
+            iCalButton.click()
+
+            link = driver.find_element_by_id("GInterface.Instances[1].Instances[10]_lien_permanent")
+            f.write(name + " " + link.get_attribute("value") + '\n')
+
+            close = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[10]_btns_0")))
+            close.click()
     finally:
         driver.close()
 
