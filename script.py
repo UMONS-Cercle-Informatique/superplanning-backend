@@ -5,20 +5,36 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.touch_actions import TouchActions
 
-driver = webdriver.Firefox()
+driver = webdriver.Chrome()
 # Loading the hyper planning site
 driver.get("https://hplanning2016.umons.ac.be/invite")
 
-# We wait to be sure that the entire page is loaded.
-# Without that, Selenium does not find the IDs.
 try:
-    dropDown = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[1].bouton")))
+    f = open("links", "w")
 
-    # Once the drop down menu is found, we click on it.
-    dropDown.click()
+    # We wait to be sure that the entire page is loaded.
+    # Without that, Selenium does not find the IDs.
+    try:
+        dropDown = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[1].bouton")))
 
-    # We must wait that the page loads the sections
-    section = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[1]_19")))
-    section.click()
+        # Once the drop down menu is found, we click on it.
+        dropDown.click()
+
+        # We must wait that the page loads the sections
+        section = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[1]_19")))
+
+        # We open the planning
+        section.click()
+
+        # The iCal pop-up
+        iCalButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="id_33"]/table/tbody/tr/td[6]/div')))
+
+        iCalButton.click()
+
+        link = driver.find_element_by_id("GInterface.Instances[1].Instances[10]_lien_permanent")
+        f.write(link.get_attribute("value") + '\n')
+    finally:
+        driver.close()
+
 finally:
-    driver.close()
+    f.close()
