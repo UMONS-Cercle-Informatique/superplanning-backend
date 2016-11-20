@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.touch_actions import TouchActions
+from time import sleep
 
 driver = webdriver.Chrome()
 # Loading the hyper planning site
@@ -15,10 +16,10 @@ try:
     # We wait to be sure that the entire page is loaded.
     # Without that, Selenium does not find the IDs.
     try:
-        # The drop down menu with the list of sections
-        dropDown = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[1].bouton")))
-
         for i in range(0, 245):
+            print(str(i))
+            # The drop down menu with the list of sections
+            dropDown = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "GInterface.Instances[1].Instances[1].bouton")))
             # Once the drop down menu is found, we click on it.
             dropDown.click()
 
@@ -27,22 +28,28 @@ try:
 
             # The name of the section
             name = section.text
-
             # We open the planning
             section.click()
 
-            # The iCal pop-up
-            iCalButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="id_33"]/table/tbody/tr/td[6]/div')))
+            sleep(1)
 
+            # The iCal pop-up
+            iCalButton = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#id_33 > table > tbody > tr > td:nth-child(6) > div')))
             iCalButton.click()
 
-            link = driver.find_element_by_id("GInterface.Instances[1].Instances[10]_lien_permanent")
+            # We retrieve the link
+            link = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "GInterface.Instances[1].Instances[10]_lien_permanent")))
+
+            # We write the name of the section and the link to the iCal to the file
             f.write(name + " " + link.get_attribute("value") + '\n')
 
-            close = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[10]_btns_0")))
+            # We close the pop-up
+            close = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.ID, "GInterface.Instances[1].Instances[10]_btns_0")))
             close.click()
+
+            # We wait for the pop-up to fully close
+            WebDriverWait(driver, 10).until_not(EC.element_to_be_clickable((By.ID, "GInterface.Instances[1].Instances[10]_btns_0")))
     finally:
         driver.close()
-
 finally:
     f.close()
