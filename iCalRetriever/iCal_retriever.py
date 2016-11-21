@@ -130,7 +130,8 @@ driver = webdriver.Chrome()
 driver.get("https://hplanning2016.umons.ac.be/invite?fd=1")
 
 try:
-    fi = open("links", "w")
+    # Do not forget to change the years!
+    fi = open("2016-2017 - links icalendar", "w")
     try:
         for i in range(0, 245):
             # We open the drop down menu.
