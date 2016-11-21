@@ -9,7 +9,7 @@ from time import sleep
 driver = webdriver.Chrome()
 # driver.implicitly_wait(1)
 # Loading the hyper planning site
-driver.get("https://hplanning2016.umons.ac.be/invite")
+driver.get("https://hplanning2016.umons.ac.be/invite?fd=1")
 
 try:
     f = open("links", "w")
