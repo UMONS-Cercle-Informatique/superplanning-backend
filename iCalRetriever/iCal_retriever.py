@@ -16,6 +16,7 @@ from selenium.webdriver.common.touch_actions import TouchActions
 from selenium.common.exceptions import WebDriverException
 from sys import exit
 from time import sleep
+import csv
 
 def click_drop_down(driver):
     """ Opens the drop down menu that allows the user to select a section.
@@ -133,7 +134,7 @@ try:
     # Do not forget to change the years!
     fi = open("2016-2017 - links icalendar", "w")
     try:
-        for i in range(0, 245):
+        for i in xrange(0, 245):
             # We open the drop down menu.
             click_drop_down(driver)
 
