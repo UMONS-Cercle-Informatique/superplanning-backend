@@ -122,9 +122,9 @@ def close_iCall_window(driver):
     print("Unable to close the iCal window. Please relaunch this script.")
     exit(6)
 
-driver = webdriver.Chrome()
+#driver = webdriver.Chrome()
 # or
-#driver = webdriver.Firefox()
+driver = webdriver.Firefox()
 
 # Loading the hyper planning site.
 driver.get("https://hplanning2016.umons.ac.be/invite?fd=1")
@@ -141,6 +141,7 @@ try:
             sleep(1)
 
             # To be sure that the element we want to reach is visible, we scroll down the drop down menu.
+            # We can't do it immediately because the first elements would become unclickable.
             if i >= 3:
                 scroll_down(driver)
 
@@ -158,17 +159,19 @@ try:
 
             # We write the name of the section and the link to the iCal to the file.
             # We also write in the console to be able to know what section the script has already reached.
-            print("--------- [" + str(i+1) + "/245]")
+            print("--------- [" + str(i) + "/244]")
             print("Année : " + name)
             print("Link : " + link)
             print("---------")
-            fi.write("--------- [" + str(i+1) + "/245]\n")
+            fi.write("--------- [" + str(i) + "/244]\n")
             fi.write("Année : " + name + '\n')
             fi.write("Link : " + link + '\n')
             fi.write("---------\n")
 
             # We close the pop-up.
             close_iCall_window(driver)
+
+            sleep(1)
     finally:
         driver.close()
 finally:
