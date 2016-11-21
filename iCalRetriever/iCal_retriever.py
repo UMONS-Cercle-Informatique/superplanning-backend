@@ -16,6 +16,7 @@ from selenium.webdriver.common.touch_actions import TouchActions
 from selenium.common.exceptions import WebDriverException
 from sys import exit
 from time import sleep
+import csv
 
 def click_drop_down(driver):
     """ Opens the drop down menu that allows the user to select a section.
@@ -122,16 +123,16 @@ def close_iCall_window(driver):
     print("Unable to close the iCal window. Please relaunch this script.")
     exit(6)
 
-#driver = webdriver.Chrome()
+driver = webdriver.Chrome()
 # or
-driver = webdriver.Firefox()
+#driver = webdriver.Firefox()
 
 # Loading the hyper planning site.
 driver.get("https://hplanning2016.umons.ac.be/invite?fd=1")
 
-try:
-    # Do not forget to change the years!
-    fi = open("2016-2017 - links icalendar", "w")
+# Do not forget to change the years!
+with open('2016-2017 - links icalendar.csv', 'w', newline='') as csvfile:
+    spamwriter = csv.writer(csvfile, delimiter=',')
     try:
         for i in range(0, 245):
             # We open the drop down menu.
@@ -163,10 +164,8 @@ try:
             print("Année : " + name)
             print("Link : " + link)
             print("---------")
-            fi.write("--------- [" + str(i) + "/244]\n")
-            fi.write("Année : " + name + '\n')
-            fi.write("Link : " + link + '\n')
-            fi.write("---------\n")
+
+            spamwriter.writerow([name, link])
 
             # We close the pop-up.
             close_iCall_window(driver)
@@ -174,5 +173,3 @@ try:
             sleep(1)
     finally:
         driver.close()
-finally:
-    fi.close()
