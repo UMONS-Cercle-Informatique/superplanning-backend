@@ -10,4 +10,4 @@ Superplanning backend.
   * [Chrome - chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads)
   * [Firefox - geckodriver](https://github.com/mozilla/geckodriver/releases)
   * Dans le script, mettez le nom approprié à la création du driver (webdriver.Chrome() ou webdriver.Firefox()) 
-  
+* [Plus d'informations](http://selenium-python.readthedocs.io/installation.html)
