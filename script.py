@@ -7,6 +7,7 @@ from selenium.webdriver.common.touch_actions import TouchActions
 from time import sleep
 
 driver = webdriver.Chrome()
+# driver.implicitly_wait(1)
 # Loading the hyper planning site
 driver.get("https://hplanning2016.umons.ac.be/invite")
 
@@ -24,6 +25,9 @@ try:
             dropDown.click()
 
             # We must wait that the page loads the sections
+            if i >= 10:
+                down = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, "jspArrowDown")))
+                down.click()
             section = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "GInterface.Instances[1].Instances[1]_" + str(i))))
 
             # The name of the section
@@ -31,7 +35,7 @@ try:
             # We open the planning
             section.click()
 
-            sleep(1)
+            sleep(2)
 
             # The iCal pop-up
             iCalButton = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#id_33 > table > tbody > tr > td:nth-child(6) > div')))
