@@ -47,3 +47,20 @@ make db-psql
 
 Un diagramme de la base de données peut être trouvé [ici](https://github.com/UMONS-Cercle-Informatique/superplanning) dans le dossier documents.
 Un fichier SQL correspondant est fourni (voir `superplanning.sql`).
+
+### Requête utile.
+
+- Pour récupérer tous les horaires de la table schedule avec les jointures (sans professeurs, localisations et blocs).
+```
+SELECT
+  superplanning.schedule.id,
+  superplanning.schedule.begin_timestamp,
+  superplanning.schedule.end_timestamp,
+  superplanning.type.name,
+  superplanning.course.small_name
+  FROM superplanning.schedule
+  INNER JOIN superplanning.course
+  ON superplanning.schedule.id_course = superplanning.course.id
+  INNER JOIN superplanning.type
+  ON superplanning.schedule.id_type = superplanning.type.id;
+```
