@@ -33,16 +33,13 @@ class IcalFetcher:
         Download the iCal file and puts all data in a list
         """
         events=[]
-        if(self.url!=None):
+        if(self.url):
             gcal=Calendar.from_ical((request.urlopen(self.url)).read())
         else:
             raise ValueError("URL missing")
         for event in gcal.walk():
             if event.name=="VEVENT":
-                if event.get('location')==None:
-                    ev = Vevent(dtstart=event.get('dtstart').dt, dtend=event.get('dtend').dt, summary=event.get('summary'), location='',description=event.get('description'))
-                else:
-                    ev=Vevent(dtstart=event.get('dtstart').dt,dtend=event.get('dtend').dt,summary=event.get('summary'),location=event.get('location'),description=event.get('description'))
+                ev=Vevent(dtstart=event.get('dtstart').dt,dtend=event.get('dtend').dt,summary=event.get('summary'),location=event.get('location'),description=event.get('description'))
                 if(ev.summary!="Férié" and ev.summary!="Vacances" and ev.description!=None):
                     events.append(ev)
         self.events = events
@@ -50,10 +47,10 @@ class IcalFetcher:
     def to_course(self,cursor,unit):
         for i in self:
             c = Course()
-            if(i.description!=None):
+            if(i.description):
                 for desc in i.description.split("\n"):
-                    print(desc)
                     if (desc.split(" : ")[0] == "Matière" and len(desc.split(" : "))>1):
+                        print(desc)
                         if (len(desc.split(" : ")[1].split(" - "))>1):
                             c.cid=desc.split(" : ")[1].split(" - ")[0]
                             c.coursename=desc.split(" : ")[1].split(" - ")[1]
@@ -62,6 +59,7 @@ class IcalFetcher:
                         c.profs=desc.split(" : ")[1].split(", ")
 
                     if (desc.split(" : ")[0] == "Type"):
+                        print(desc)
                         c.ctype=desc.split(" : ")[1]
 
                     if (desc.split(" : ")[0] == "Motif d'annulation"):
@@ -70,7 +68,7 @@ class IcalFetcher:
                     if (desc.split(" : ")[0] == "Mémo"):
                         c.memo=desc.split(" : ")[1]
                 c.unit=unit.replace("'", " ")
-                if(i.location!=None):
+                if(i.location):
                     c.loca=i.location.split(", ")
                 c.start=i.dtstart
                 c.end=i.dtend
@@ -92,20 +90,22 @@ class Course:
 
 
     def completeCourse(self):
-        if(self.coursename!=None): self.coursename = self.coursename.replace("'", " ")
-        if (self.cid!=None):self.cid = self.cid.replace("'", " ")
-        if(self.profs!=None):
+        if(self.coursename): self.coursename = self.coursename.replace("'", " ")
+        if (self.cid):self.cid = self.cid.replace("'", " ")
+        if(self.profs):
             for prof in range(len(self.profs)):
                 self.profs[prof] = self.profs[prof].replace("'", " ")
-        if(self.ctype!=None):self.ctype = self.ctype.replace("'", " ")
-        if(self.loca!=None):
+        if(self.ctype):self.ctype = self.ctype.replace("'", " ")
+        if(self.loca):
             for loc in range(len(self.loca)):
                 self.loca[loc] = self.loca[loc].replace("'", " ")
+        #if(self.start):self.start = self.start.timestamp()
+        #if(self.end):self.end=self.end.timestamp()
 
 
     def add_to_db(self, cursor):
         #course table
-        if(self.cid!=None):
+        if(self.cid):
             str="select * from superplanning.course where (small_name='"+self.cid+"')"
             cursor.execute(str)
             a=cursor.fetchall()
@@ -114,7 +114,7 @@ class Course:
                 cursor.execute(str2)
 
         #type table
-        if(self.ctype!=None):
+        if(self.ctype):
             str = "select * from superplanning.type where (name='" + self.ctype + "')"
             cursor.execute(str)
             a = cursor.fetchall()
@@ -123,7 +123,7 @@ class Course:
                 cursor.execute(str2)
 
         #teacher table
-        if(self.profs!=None):
+        if(self.profs):
             for prof in self.profs:
                 str = "select * from superplanning.teacher where (name='" + prof + "')"
                 cursor.execute(str)
@@ -133,7 +133,7 @@ class Course:
                     cursor.execute(str2)
 
         #location table
-        if(self.loca!=None):
+        if(self.loca):
             for loc in self.loca:
                 str = "select * from superplanning.location where (location='" + loc + "')"
                 cursor.execute(str)
@@ -142,26 +142,38 @@ class Course:
                     str2 = "insert into superplanning.location (location) values('" + loc + "')"
                     cursor.execute(str2)
         # unit table
-        if (self.unit != None):
+        if (self.unit):
             str = "select * from superplanning.unit where (name='" + self.unit + "')"
             cursor.execute(str)
             a = cursor.fetchall()
             if (len(a) == 0):
                 str2 = "insert into superplanning.unit (name) values('" + self.unit + "')"
                 cursor.execute(str2)
-        # schedule_unit table
         # schedule table
+        if(self.cid and self.ctype and self.start and self.end):
+            reqcid = "select * from superplanning.course where (small_name='" + self.cid + "')"
+            reqctype = "select * from superplanning.type where (name='" + self.ctype + "')"
+            cursor.execute(reqcid)
+            dbcourseid = cursor.fetchall()
+            cursor.execute(reqctype)
+            dbtypeid = cursor.fetchall()
+            str="select * from superplanning.schedule where (id_course='{}".format(dbcourseid[0][0])+ "' and "+"id_type='{}".format(dbtypeid[0][0]) + "' and "+"begin_timestamp='{0}".format(self.start) + "' and "+"end_timestamp='{0}".format(self.end) + "' and "+"canceled='{}".format(self.canceled) + "'"+")"
+            cursor.execute(str)
+            a=cursor.fetchall()
+            if (len(a)==0):
+                str2="insert into superplanning.schedule (id_course,id_type,begin_timestamp,end_timestamp,canceled) values('{}'".format(dbcourseid[0][0]) +",'{}'".format(dbtypeid[0][0]) +",'{0}'".format(self.start)+",'{0}'".format(self.end)+",'{}'".format(self.canceled)+")"
+                cursor.execute(str2)
+        #  schedule_unit table
         # schedule_location table
         # schedule_teacher table
     
 
-connexion =psycopg2.connect("dbname='superplanning' user='superplanning' host='localhost' password='superplanning' port='3000'")
+connexion =psycopg2.connect("dbname='superplanning' user='luch3' host='localhost' password='superplanning' port='3000'")
 cursor = connexion.cursor()
-
 with open("icalendar.csv") as csvfile:
     csvread =csv.reader(csvfile,delimiter=",")
-    cpt = 5
     for raw in csvread:
+            print(raw[0])
             iCalFile = IcalFetcher(raw[1])
             iCalFile.get_events()
             iCalFile.to_course(cursor,raw[0])
