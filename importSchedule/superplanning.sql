@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS superplanning.teacher
 CREATE TABLE IF NOT EXISTS superplanning.unit
 (
   id    bigserial             primary key,
-  name  VARCHAR(45) NOT NULL
+  name  VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS superplanning.location
